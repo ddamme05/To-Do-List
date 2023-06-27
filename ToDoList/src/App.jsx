@@ -1,7 +1,8 @@
 import  { useState } from "react";
 import "./App.css";
+import TaskList from "../components/TaskList";
 
-function TaskList() {
+function Tasks() {
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -49,10 +50,11 @@ function TaskList() {
     <div className="container">
       <h1>Task List</h1>
       <div className="task-list-container">
-       <TaskList  taskTitle={taskTitle} editTaskId={editTaskId} editTaskTitle={editTaskTitle} setTasks={setTasks} 
+       <TaskList tasks={tasks} taskTitle={taskTitle} editTaskId={editTaskId} editTaskTitle={editTaskTitle} setTasks={setTasks} 
        setEditTaskId={setEditTaskId}
        setEditTaskTitle={setEditTaskTitle}
        />
+      
         <form onSubmit={handleTaskSubmit}>
           <input
             type="text"
@@ -67,4 +69,4 @@ function TaskList() {
   );
 }
 
-export default TaskList;
+export default Tasks;
