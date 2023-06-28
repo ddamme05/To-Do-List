@@ -3,22 +3,7 @@ import "./App.css";
 import TaskList from "../components/TaskList";
 
 function Tasks() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Code",
-      completed: false,
-      dueDate: "6/30/2023",
-      createdDate: "6/25/2023",
-    },
-    {
-      id: 2,
-      title: "Don't stop",
-      completed: false,
-      dueDate: "7/05/2023",
-      createdDate: "6/26/2023",
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -27,7 +12,7 @@ function Tasks() {
         const tasks = await response.json();
         setTasks(tasks);
       } catch (error) {
-        console.error("Error fetching jobs:", error);
+        console.error("Error fetching tasks:", error);
       }
     }
   
