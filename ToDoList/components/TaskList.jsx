@@ -1,10 +1,34 @@
 /* eslint-disable react/prop-types */
 
 function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTitle, editTaskId, setEditTaskId }) {
-  function removeTask(taskId) {
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-    setTasks(updatedTasks);
+
+  async function removeTask(taskId) {
+    try {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+  
+      if (response.ok) {
+        const updatedTasks = tasks.filter((task) => task.id !== taskId);
+        setTasks(updatedTasks);
+  
+        const updatedTasksWithAutoIncrementedId = updatedTasks.map((task, index) => ({
+          ...task,
+          id: index + 1,
+        }));
+  
+        setTasks(updatedTasksWithAutoIncrementedId);
+      } else {
+        console.error("Error removing task:", response.status);
+      }
+    } catch (error) {
+      console.error("Error removing task:", error);
+    }
   }
+  
+  
+  
+  
 
   function handleEditClick(taskId) {
     const task = tasks.find((task) => task.id === taskId);

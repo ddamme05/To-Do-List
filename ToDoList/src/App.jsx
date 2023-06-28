@@ -15,7 +15,7 @@ function Tasks() {
         console.error("Error fetching tasks:", error);
       }
     }
-  
+
     fetchTasks();
   }, []);
   
@@ -26,25 +26,41 @@ function Tasks() {
   //To track what we're setting the existing task title to be
   const [editTaskTitle, setEditTaskTitle] = useState("");
 
-  function handleTaskSubmit(event) {
+  async function handleTaskSubmit(event) {
     event.preventDefault();
-
+  
     if (taskTitle.trim() !== "") {
       const newTask = {
-        id: tasks.length + 1,
         title: taskTitle,
         completed: false,
         createdDate: new Date().toLocaleDateString(),
         dueDate: new Date(
           Date.now() + 7 * 24 * 60 * 60 * 1000
         ).toLocaleDateString(),
-        showMoreInfo: false,
       };
-
-      setTasks([...tasks, newTask]);
-      setTaskTitle("");
+  
+      try {
+        const response = await fetch("http://localhost:3000/tasks", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newTask),
+        });
+  
+        if (response.ok) {
+          const savedTask = await response.json();
+          setTasks([...tasks, savedTask]);
+          setTaskTitle("");
+        } else {
+          console.error("Error saving task:", response.status);
+        }
+      } catch (error) {
+        console.error("Error saving task:", error);
+      }
     }
   }
+  
 
   return (
     <div className="container">
