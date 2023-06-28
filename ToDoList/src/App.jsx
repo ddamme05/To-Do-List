@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import  { useState, useEffect } from "react";
 import "./App.css";
 import TaskList from "../components/TaskList";
 
@@ -19,6 +19,21 @@ function Tasks() {
       createdDate: "6/26/2023",
     },
   ]);
+
+  useEffect(() => {
+    async function fetchTasks() {
+      try {
+        const response = await fetch("http://localhost:3000/tasks");
+        const tasks = await response.json();
+        setTasks(tasks);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      }
+    }
+  
+    fetchTasks();
+  }, []);
+  
   //To track task title
   const [taskTitle, setTaskTitle] = useState("");
   //To track current task being edited, set back to null to indicate no task is currently being edited after its done.
