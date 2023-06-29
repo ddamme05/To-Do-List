@@ -34,9 +34,7 @@ function Tasks() {
         title: taskTitle,
         completed: false,
         createdDate: new Date().toLocaleDateString(),
-        dueDate: new Date(
-          Date.now() + 7 * 24 * 60 * 60 * 1000
-        ).toLocaleDateString(),
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
       };
   
       try {
@@ -60,6 +58,7 @@ function Tasks() {
       }
     }
   }
+  
   
 
   return (
