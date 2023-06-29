@@ -1,24 +1,24 @@
-import  { useState } from "react";
+import  { useState, useEffect } from "react";
 import "./App.css";
 import TaskList from "../components/TaskList";
 
 function Tasks() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Code",
-      completed: false,
-      dueDate: "6/30/2023",
-      createdDate: "6/25/2023",
-    },
-    {
-      id: 2,
-      title: "Don't stop",
-      completed: false,
-      dueDate: "7/05/2023",
-      createdDate: "6/26/2023",
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    async function fetchTasks() {
+      try {
+        const response = await fetch("http://localhost:3000/tasks");
+        const tasks = await response.json();
+        setTasks(tasks);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    }
+
+    fetchTasks();
+  }, []);
+  
   //To track task title
   const [taskTitle, setTaskTitle] = useState("");
   //To track current task being edited, set back to null to indicate no task is currently being edited after its done.
@@ -26,25 +26,40 @@ function Tasks() {
   //To track what we're setting the existing task title to be
   const [editTaskTitle, setEditTaskTitle] = useState("");
 
-  function handleTaskSubmit(event) {
+  async function handleTaskSubmit(event) {
     event.preventDefault();
-
+  
     if (taskTitle.trim() !== "") {
       const newTask = {
-        id: tasks.length + 1,
         title: taskTitle,
         completed: false,
         createdDate: new Date().toLocaleDateString(),
-        dueDate: new Date(
-          Date.now() + 7 * 24 * 60 * 60 * 1000
-        ).toLocaleDateString(),
-        showMoreInfo: false,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
       };
-
-      setTasks([...tasks, newTask]);
-      setTaskTitle("");
+  
+      try {
+        const response = await fetch("http://localhost:3000/tasks", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newTask),
+        });
+  
+        if (response.ok) {
+          const savedTask = await response.json();
+          setTasks([...tasks, savedTask]);
+          setTaskTitle("");
+        } else {
+          console.error("Error saving task:", response.status);
+        }
+      } catch (error) {
+        console.error("Error saving task:", error);
+      }
     }
   }
+  
+  
 
   return (
     <div className="container">
