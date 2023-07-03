@@ -1,4 +1,6 @@
 /* eslint-disable react/prop-types */
+import { Link } from "react-router-dom";
+import MoreInfo from "./MoreInfo";
 
 function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTitle, editTaskId, setEditTaskId }) {
   async function removeTask(taskId) {
@@ -120,6 +122,9 @@ function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTitle, editTaskId
                 <td>{task.createdDate}</td>
                 <td>
                   <div className="button-group">
+                    {/* <Link to={`/tasks/${task.id}`}>
+                      <button>More Info</button>
+                    </Link> */}
                     <button onClick={() => handleEditClick(task.id)}>Edit</button>
                     <button onClick={() => handleCompleteClick(task.id)}>
                       {task.completed ? "Mark Incomplete" : "Mark Complete"}

@@ -1,6 +1,8 @@
 import  { useState, useEffect } from "react";
 import "./App.css";
 import TaskList from "../components/TaskList";
+import MoreInfo from "../components/MoreInfo";
+import { BrowserRouter , Routes, Route } from "react-router-dom";
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -62,26 +64,63 @@ function Tasks() {
   
 
   return (
-    <div className="container">
-      <h1>Task List</h1>
-      <div className="task-list-container">
-       <TaskList tasks={tasks} taskTitle={taskTitle} editTaskId={editTaskId} editTaskTitle={editTaskTitle} setTasks={setTasks} 
+    <BrowserRouter>
+      <div className="container">
+        <h1>Task List</h1>
+        <div className="task-list-container">
+        <TaskList tasks={tasks} taskTitle={taskTitle} editTaskId={editTaskId} editTaskTitle={editTaskTitle} setTasks={setTasks} 
        setEditTaskId={setEditTaskId}
        setEditTaskTitle={setEditTaskTitle}
        />
-      
-        <form onSubmit={handleTaskSubmit}>
-          <input
-            type="text"
-            value={taskTitle}
-            onChange={(event) => setTaskTitle(event.target.value)}
-            placeholder="Enter task title"
-          />
-          <button type="submit">Add Task</button>
-        </form>
+          <form onSubmit={handleTaskSubmit}>
+            <input
+              type="text"
+              value={taskTitle}
+              onChange={(event) => setTaskTitle(event.target.value)}
+              placeholder="Enter task title"
+            />
+            <button type="submit">Add Task</button>
+          </form>
+        </div>
+        <Routes>
+          <Route path ="/" element={<Tasks />} />
+          <Route path="/tasks/:taskId" element={<MoreInfo tasks={tasks} />} />
+        </Routes>
       </div>
-    </div>
+    </BrowserRouter>
   );
 }
 
 export default Tasks;
+
+// return (
+//   <BrowserRouter>
+//     <div className="container">
+//       <h1>Task List</h1>
+//       <div className="task-list-container">
+//         <TaskList
+//           tasks={tasks}
+//           taskTitle={taskTitle}
+//           editTaskId={editTaskId}
+//           editTaskTitle={editTaskTitle}
+//           setTasks={setTasks}
+//           setEditTaskId={setEditTaskId}
+//           setEditTaskTitle={setEditTaskTitle}
+//         />
+//         <form onSubmit={handleTaskSubmit}>
+//           <input
+//             type="text"
+//             value={taskTitle}
+//             onChange={(event) => setTaskTitle(event.target.value)}
+//             placeholder="Enter task title"
+//           />
+//           <button type="submit">Add Task</button>
+//         </form>
+//       </div>
+//     </div>
+//     <Routes>
+//       <Route path ="/" element={<Tasks />} />
+//       <Route path="/tasks/:taskId" element={<MoreInfo tasks={tasks} />} />
+//     </Routes>
+//   </BrowserRouter>
+// );
