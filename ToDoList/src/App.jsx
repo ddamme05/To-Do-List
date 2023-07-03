@@ -1,10 +1,8 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import TaskList from "../components/TaskList";
-import MoreInfo from "../components/MoreInfo";
-import { BrowserRouter , Routes, Route } from "react-router-dom";
 
-function Tasks() {
+export default function Tasks() {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
@@ -20,7 +18,9 @@ function Tasks() {
 
     fetchTasks();
   }, []);
+
   
+
   //To track task title
   const [taskTitle, setTaskTitle] = useState("");
   //To track current task being edited, set back to null to indicate no task is currently being edited after its done.
@@ -30,15 +30,17 @@ function Tasks() {
 
   async function handleTaskSubmit(event) {
     event.preventDefault();
-  
+
     if (taskTitle.trim() !== "") {
       const newTask = {
         title: taskTitle,
         completed: false,
         createdDate: new Date().toLocaleDateString(),
-        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        dueDate: new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000
+        ).toLocaleDateString(),
       };
-  
+
       try {
         const response = await fetch("http://localhost:3000/tasks", {
           method: "POST",
@@ -47,7 +49,7 @@ function Tasks() {
           },
           body: JSON.stringify(newTask),
         });
-  
+
         if (response.ok) {
           const savedTask = await response.json();
           setTasks([...tasks, savedTask]);
@@ -60,38 +62,63 @@ function Tasks() {
       }
     }
   }
-  
-  
 
   return (
-    <BrowserRouter>
-      <div className="container">
-        <h1>Task List</h1>
-        <div className="task-list-container">
-        <TaskList tasks={tasks} taskTitle={taskTitle} editTaskId={editTaskId} editTaskTitle={editTaskTitle} setTasks={setTasks} 
-       setEditTaskId={setEditTaskId}
-       setEditTaskTitle={setEditTaskTitle}
-       />
-          <form onSubmit={handleTaskSubmit}>
-            <input
-              type="text"
-              value={taskTitle}
-              onChange={(event) => setTaskTitle(event.target.value)}
-              placeholder="Enter task title"
-            />
-            <button type="submit">Add Task</button>
-          </form>
-        </div>
-        <Routes>
-          <Route path ="/" element={<Tasks />} />
-          <Route path="/tasks/:taskId" element={<MoreInfo tasks={tasks} />} />
-        </Routes>
+    <div className="container">
+      <h1>Task List</h1>
+      <div className="task-list-container">
+        <TaskList
+          tasks={tasks}
+          taskTitle={taskTitle}
+          editTaskId={editTaskId}
+          editTaskTitle={editTaskTitle}
+          setTasks={setTasks}
+          setEditTaskId={setEditTaskId}
+          setEditTaskTitle={setEditTaskTitle}
+        />
+        <form onSubmit={handleTaskSubmit}>
+          <input
+            type="text"
+            value={taskTitle}
+            onChange={(event) => setTaskTitle(event.target.value)}
+            placeholder="Enter task title"
+          />
+          <button type="submit">Add Task</button>
+        </form>
       </div>
-    </BrowserRouter>
+    </div>
   );
 }
 
-export default Tasks;
+//   return (
+//     <BrowserRouter>
+//       <div className="container">
+//         <h1>Task List</h1>
+//         <div className="task-list-container">
+//         <TaskList tasks={tasks} taskTitle={taskTitle} editTaskId={editTaskId} editTaskTitle={editTaskTitle} setTasks={setTasks}
+//        setEditTaskId={setEditTaskId}
+//        setEditTaskTitle={setEditTaskTitle}
+//        setTask = {setTask}
+//        />
+//           <form onSubmit={handleTaskSubmit}>
+//             <input
+//               type="text"
+//               value={taskTitle}
+//               onChange={(event) => setTaskTitle(event.target.value)}
+//               placeholder="Enter task title"
+//             />
+//             <button type="submit">Add Task</button>
+//           </form>
+//         </div>
+//         {/* <MoreInfo tasks = {tasks}/> */}
+//         <Routes>
+//           <Route path ="/" component={ Tasks } />
+//           <Route path={ `tasks/${task}` } component={ <MoreInfo tasks = {tasks}/> } />
+//         </Routes>
+//       </div>
+//     </BrowserRouter>
+//   );
+// }
 
 // return (
 //   <BrowserRouter>
@@ -120,7 +147,8 @@ export default Tasks;
 //     </div>
 //     <Routes>
 //       <Route path ="/" element={<Tasks />} />
-//       <Route path="/tasks/:taskId" element={<MoreInfo tasks={tasks} />} />
+//       <Route path={ `/tasks/${task.id}` } element={<MoreInfo tasks={tasks} />} />
 //     </Routes>
 //   </BrowserRouter>
 // );
+// }
