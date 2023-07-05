@@ -1,8 +1,43 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
+import { useState } from "react";
 //import MoreInfo from "./MoreInfo";
 
 export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTitle, editTaskId, setEditTaskId}) {
+
+  const [sortField, setSortField] = useState("createdDate");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  function handleSort(field) {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  }
+
+  function sortTasks(tasks) {
+    return tasks.sort((a, b) => {
+      if (sortField === "title") {
+        if (sortOrder === "asc") {
+          return a.title.localeCompare(b.title);
+        } else {
+          return b.title.localeCompare(a.title);
+        }
+      } else if (sortField === "createdDate") {
+        const dateA = new Date(a.createdDate);
+        const dateB = new Date(b.createdDate);
+        if (sortOrder === "asc") {
+          return dateA - dateB;
+        } else {
+          return dateB - dateA;
+        }
+      }
+      return 0;
+    });
+  }
+
   async function removeTask(taskId) {
     try {
       //Fetches from something like.. localhost:3000/tasks/2 for the task with the id 2
@@ -49,7 +84,16 @@ export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTi
     setEditTaskTitle(task.title);
   }
 
+  function handleCancelClick() {
+    setEditTaskId(null);
+    setEditTaskTitle("");
+  }
+
   async function handleSaveClick(taskId) {
+    if (editTaskTitle.length < 1) {
+      throw new Error("Cannot have an empty title field!");
+    }
+  
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
         return {
@@ -59,10 +103,12 @@ export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTi
       }
       return task;
     });
+  
     updateTask(taskId, updatedTasks.find((task) => task.id === taskId));
     setEditTaskId(null);
     setEditTaskTitle("");
   }
+  
 
   async function handleCompleteClick(taskId) {
     const updatedTasks = tasks.map((task) => {
@@ -82,59 +128,52 @@ export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTi
     <table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Created Date</th>
+          <th onClick={() => handleSort("title")}>Title</th>
+          <th onClick={() => handleSort("createdDate")}>Created Date</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        {tasks.map((task) => {
-          if (editTaskId === task.id) {
-            return (
-              <tr key={task.id}>
-                <td>{task.id}</td>
-                <td>
-                  <input
-                    type="text"
-                    value={editTaskTitle}
-                    onChange={(event) => setEditTaskTitle(event.target.value)}
-                  />
-                </td>
-                <td>{task.createdDate}</td>
-                <td>
-                  <div className="button-group">
-                    <button onClick={() => handleSaveClick(task.id)}>Save</button>
-                    <button onClick={() => handleEditClick(task.id)}>Edit</button>
-                    <button onClick={() => handleCompleteClick(task.id)}>
-                      {task.completed ? "Mark Incomplete" : "Mark Complete"}
-                    </button>
-                    <button onClick={() => removeTask(task.id)}>Remove Task</button>
-                  </div>
-                </td>
-              </tr>
-            );
-          } else {
-            return (
-              <tr key={task.id}>
-                <td>{task.id}</td>
-                <td>{task.title}</td>
-                <td>{task.createdDate}</td>
-                <td>
-                  <div className="button-group">
+        {sortTasks(tasks).map((task) => {
+          const isEditing = editTaskId === task.id;
+
+          return (
+            <tr key={task.id}>
+              <td>{isEditing ? (
+                <input
+                  type="text"
+                  value={editTaskTitle}
+                  onChange={(event) => setEditTaskTitle(event.target.value)}
+                />
+              ) : (
+                task.title
+              )}</td>
+              <td>{task.createdDate}</td>
+              <td>
+                <div className="button-group">
+                  {!isEditing && (
                     <Link to={`tasks/${task.id}`}>
                       <button>More Info</button>
                     </Link>
-                    <button onClick={() => handleEditClick(task.id)}>Edit</button>
-                    <button onClick={() => handleCompleteClick(task.id)}>
-                      {task.completed ? "Mark Incomplete" : "Mark Complete"}
-                    </button>
-                    <button onClick={() => removeTask(task.id)}>Remove Task</button>
-                  </div>
-                </td>
-              </tr>
-            );
-          }
+                  )}
+                  {isEditing ? (
+                    <>
+                      <button onClick={() => handleSaveClick(task.id)} disabled={editTaskTitle.length < 1}>Save</button>
+                      <button onClick={handleCancelClick}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => handleEditClick(task.id)}>Edit</button>
+                      <button onClick={() => handleCompleteClick(task.id)}>
+                        {task.completed ? "Mark Incomplete" : "Mark Complete"}
+                      </button>
+                      <button onClick={() => removeTask(task.id)}>Remove Task</button>
+                    </>
+                  )}
+                </div>
+              </td>
+            </tr>
+          );
         })}
       </tbody>
     </table>

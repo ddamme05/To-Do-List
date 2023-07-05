@@ -1,3 +1,9 @@
-p {
-    color: red;
+.task-title {
+    font-size: xx-large;
+    text-align: center;
+}
+
+.task-desc {
+    font-family: Garamond, serif;
+    font-size: x-large;
 }
