@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import './MoreInfo.css'
 
-export default function MoreInfo({}) {
+export default function MoreInfo() {
   const { taskId } = useParams();
   const [task, setTask] = useState(null);
 

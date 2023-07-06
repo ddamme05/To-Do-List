@@ -1,12 +1,21 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import { useState } from "react";
-//import MoreInfo from "./MoreInfo";
+import Modal from "./Modal";
 
-export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTitle, editTaskId, setEditTaskId}) {
-
+export default function TaskList({
+  tasks,
+  setTasks,
+  editTaskTitle,
+  editTaskDescription,
+  setEditTaskTitle,
+  setEditTaskDescription,
+  editTaskId,
+  setEditTaskId,
+}) {
   const [sortField, setSortField] = useState("createdDate");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [showEditModal, setShowEditModal] = useState(false);
 
   function handleSort(field) {
     if (sortField === field) {
@@ -40,7 +49,6 @@ export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTi
 
   async function removeTask(taskId) {
     try {
-      //Fetches from something like.. localhost:3000/tasks/2 for the task with the id 2
       const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
         method: "DELETE",
       });
@@ -67,8 +75,9 @@ export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTi
       });
 
       if (response.ok) {
-        //For task id that matches this, it replaces it with updatedTask to update it and keeps everything else the same hence : task
-        const updatedTasks = tasks.map((task) => (task.id === taskId ? updatedTask : task));
+        const updatedTasks = tasks.map((task) =>
+          task.id === taskId ? updatedTask : task
+        );
         setTasks(updatedTasks);
       } else {
         console.error("Error updating task:", response.status);
@@ -82,100 +91,153 @@ export default function TaskList({ tasks, setTasks, editTaskTitle, setEditTaskTi
     const task = tasks.find((task) => task.id === taskId);
     setEditTaskId(taskId);
     setEditTaskTitle(task.title);
+    setEditTaskDescription(task.description);
+    setShowEditModal(true);
   }
 
   function handleCancelClick() {
     setEditTaskId(null);
     setEditTaskTitle("");
+    setEditTaskDescription("");
+    setShowEditModal(false);
   }
 
   async function handleSaveClick(taskId) {
     if (editTaskTitle.length < 1) {
       throw new Error("Cannot have an empty title field!");
     }
-  
+
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
         return {
           ...task,
           title: editTaskTitle,
+          description:editTaskDescription,
         };
       }
       return task;
     });
-  
-    updateTask(taskId, updatedTasks.find((task) => task.id === taskId));
+
+    updateTask(
+      taskId,
+      updatedTasks.find((task) => task.id === taskId)
+    );
     setEditTaskId(null);
     setEditTaskTitle("");
+    setEditTaskDescription("");
+    setShowEditModal(false);
   }
-  
 
   async function handleCompleteClick(taskId) {
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
         return {
-          //Creates a new task object with its properties and changes completed field to the opposite of its default which is true.
           ...task,
           completed: !task.completed,
         };
       }
       return task;
     });
-    updateTask(taskId, updatedTasks.find((task) => task.id === taskId));
+    updateTask(
+      taskId,
+      updatedTasks.find((task) => task.id === taskId)
+    );
   }
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th onClick={() => handleSort("title")}>Title</th>
-          <th onClick={() => handleSort("createdDate")}>Created Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortTasks(tasks).map((task) => {
-          const isEditing = editTaskId === task.id;
+    <>
+      <table>
+        <thead>
+          <tr>
+            <th onClick={() => handleSort("title")}>Title</th>
+            <th onClick={() => handleSort("createdDate")}>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortTasks(tasks).map((task) => {
+            const isEditing = editTaskId === task.id;
 
-          return (
-            <tr key={task.id}>
-              <td>{isEditing ? (
-                <input
-                  type="text"
-                  value={editTaskTitle}
-                  onChange={(event) => setEditTaskTitle(event.target.value)}
-                />
-              ) : (
-                task.title
-              )}</td>
-              <td>{task.createdDate}</td>
-              <td>
-                <div className="button-group">
-                  {!isEditing && (
-                    <Link to={`tasks/${task.id}`}>
-                      <button>More Info</button>
-                    </Link>
-                  )}
+            return (
+              <tr key={task.id}>
+                <td>
                   {isEditing ? (
-                    <>
-                      <button onClick={() => handleSaveClick(task.id)} disabled={editTaskTitle.length < 1}>Save</button>
-                      <button onClick={handleCancelClick}>Cancel</button>
-                    </>
+                    <input
+                      type="text"
+                      value={editTaskTitle}
+                      onChange={(event) =>
+                        setEditTaskTitle(event.target.value)
+                      }
+                    />
                   ) : (
-                    <>
-                      <button onClick={() => handleEditClick(task.id)}>Edit</button>
-                      <button onClick={() => handleCompleteClick(task.id)}>
-                        {task.completed ? "Mark Incomplete" : "Mark Complete"}
-                      </button>
-                      <button onClick={() => removeTask(task.id)}>Remove Task</button>
-                    </>
+                    task.title
                   )}
-                </div>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+                </td>
+                <td>{task.createdDate}</td>
+                <td>
+                  <div className="button-group">
+                    {!isEditing && (
+                      <Link to={`tasks/${task.id}`}>
+                        <button>More Info</button>
+                      </Link>
+                    )}
+                    {isEditing ? (
+                      <>
+                        <button
+                          onClick={() => handleSaveClick(task.id)}
+                          disabled={editTaskTitle.length < 1}
+                        >
+                          Save
+                        </button>
+                        <button onClick={handleCancelClick}>Cancel</button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleEditClick(task.id)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleCompleteClick(task.id)}
+                        >
+                          {task.completed
+                            ? "Mark Incomplete"
+                            : "Mark Complete"}
+                        </button>
+                        <button onClick={() => removeTask(task.id)}>
+                          Remove Task
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <Modal
+        isVisible={showEditModal}
+        hideModal={() => setShowEditModal(false)}
+      >
+        <h2>Edit Task</h2>
+        <form onSubmit={() => handleSaveClick(editTaskId)}>
+          <label>Title:</label>
+          <input
+            type="text"
+            value={editTaskTitle}
+            onChange={(event) => setEditTaskTitle(event.target.value)}
+          />
+          <label>Description:</label>
+          <textarea
+            value={editTaskDescription}
+            onChange={(event) => setEditTaskDescription(event.target.value)}
+          ></textarea>
+          <button type="submit">Save</button>
+          <button onClick={handleCancelClick}>Cancel</button>
+        </form>
+      </Modal>
+    </>
   );
 }
