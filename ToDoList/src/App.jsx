@@ -78,32 +78,24 @@ export default function Tasks() {
           setEditTaskTitle={setEditTaskTitle}
           setEditTaskDescription={setEditTaskDescription}
         />
-        <form onSubmit={handleTaskSubmit}>
-          <input
-            type="text"
-            value={taskTitle}
-            onChange={(event) => setTaskTitle(event.target.value)}
-            placeholder="Enter task title"
-          />
-          <button type="button" onClick={() => setShowAddModal(true)}>Add Task</button>
-          <Modal isVisible={showAddModal} hideModal={() => setShowAddModal(false)}>
-            <h2>Add Task</h2>
-            <form onSubmit={handleTaskSubmit}>
-              <label>Title:</label>
-              <input
-                type="text"
-                value={taskTitle}
-                onChange={(event) => setTaskTitle(event.target.value)}
-              />
-             <label>Description:</label>
-              <textarea
-                value={taskDescription}
-                onChange={(event) => setTaskDescription(event.target.value)}
-              ></textarea>
-              <button type="submit">Save</button>
-            </form>
-          </Modal>
-        </form>
+        <button type="button" onClick={() => setShowAddModal(true)}>Add Task</button>
+        <Modal isVisible={showAddModal} hideModal={() => setShowAddModal(false)}>
+          <h2>Add Task</h2>
+          <form onSubmit={handleTaskSubmit}>
+            <label>Title:</label>
+            <input
+              type="text"
+              value={taskTitle}
+              onChange={(event) => setTaskTitle(event.target.value)}
+            />
+            <label>Description:</label>
+            <textarea
+              value={taskDescription}
+              onChange={(event) => setTaskDescription(event.target.value)}
+            ></textarea>
+            <button type="submit">Save</button>
+          </form>
+        </Modal>
       </div>
     </div>
   );

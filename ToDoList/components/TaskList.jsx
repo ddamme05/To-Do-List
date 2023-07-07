@@ -170,7 +170,9 @@ export default function TaskList({
                       }
                     />
                   ) : (
-                    task.title
+                    <span className = {task.completed ? "completed" : ""}>
+                      {task.title}
+                    </span>
                   )}
                 </td>
                 <td>{task.createdDate}</td>
