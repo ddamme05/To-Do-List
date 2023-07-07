@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import TaskList from "../components/TaskList";
+import Modal from "../components/Modal";
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [editTaskId, setEditTaskId] = useState(null);
+  const [editTaskTitle, setEditTaskTitle] = useState("");
+  const [editTaskDescription, setEditTaskDescription] = useState("");
 
   useEffect(() => {
     async function fetchTasks() {
@@ -19,26 +26,16 @@ export default function Tasks() {
     fetchTasks();
   }, []);
 
-  
-
-  //To track task title
-  const [taskTitle, setTaskTitle] = useState("");
-  //To track current task being edited, set back to null to indicate no task is currently being edited after its done.
-  const [editTaskId, setEditTaskId] = useState(null);
-  //To track what we're setting the existing task title to be
-  const [editTaskTitle, setEditTaskTitle] = useState("");
-
   async function handleTaskSubmit(event) {
     event.preventDefault();
 
     if (taskTitle.trim() !== "") {
       const newTask = {
         title: taskTitle,
+        description: taskDescription,
         completed: false,
         createdDate: new Date().toLocaleDateString(),
-        dueDate: new Date(
-          Date.now() + 7 * 24 * 60 * 60 * 1000
-        ).toLocaleDateString(),
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
       };
 
       try {
@@ -54,6 +51,8 @@ export default function Tasks() {
           const savedTask = await response.json();
           setTasks([...tasks, savedTask]);
           setTaskTitle("");
+          setTaskDescription("");
+          setShowAddModal(false);
         } else {
           console.error("Error saving task:", response.status);
         }
@@ -70,85 +69,34 @@ export default function Tasks() {
         <TaskList
           tasks={tasks}
           taskTitle={taskTitle}
+          taskDescription={taskDescription}
           editTaskId={editTaskId}
           editTaskTitle={editTaskTitle}
+          editTaskDescription={editTaskDescription}
           setTasks={setTasks}
           setEditTaskId={setEditTaskId}
           setEditTaskTitle={setEditTaskTitle}
+          setEditTaskDescription={setEditTaskDescription}
         />
-        <form onSubmit={handleTaskSubmit}>
-          <input
-            type="text"
-            value={taskTitle}
-            onChange={(event) => setTaskTitle(event.target.value)}
-            placeholder="Enter task title"
-          />
-          <button type="submit">Add Task</button>
-        </form>
+        <button type="button" onClick={() => setShowAddModal(true)}>Add Task</button>
+        <Modal isVisible={showAddModal} hideModal={() => setShowAddModal(false)}>
+          <h2>Add Task</h2>
+          <form onSubmit={handleTaskSubmit}>
+            <label>Title:</label>
+            <input
+              type="text"
+              value={taskTitle}
+              onChange={(event) => setTaskTitle(event.target.value)}
+            />
+            <label>Description:</label>
+            <textarea
+              value={taskDescription}
+              onChange={(event) => setTaskDescription(event.target.value)}
+            ></textarea>
+            <button type="submit">Save</button>
+          </form>
+        </Modal>
       </div>
     </div>
   );
 }
-
-//   return (
-//     <BrowserRouter>
-//       <div className="container">
-//         <h1>Task List</h1>
-//         <div className="task-list-container">
-//         <TaskList tasks={tasks} taskTitle={taskTitle} editTaskId={editTaskId} editTaskTitle={editTaskTitle} setTasks={setTasks}
-//        setEditTaskId={setEditTaskId}
-//        setEditTaskTitle={setEditTaskTitle}
-//        setTask = {setTask}
-//        />
-//           <form onSubmit={handleTaskSubmit}>
-//             <input
-//               type="text"
-//               value={taskTitle}
-//               onChange={(event) => setTaskTitle(event.target.value)}
-//               placeholder="Enter task title"
-//             />
-//             <button type="submit">Add Task</button>
-//           </form>
-//         </div>
-//         {/* <MoreInfo tasks = {tasks}/> */}
-//         <Routes>
-//           <Route path ="/" component={ Tasks } />
-//           <Route path={ `tasks/${task}` } component={ <MoreInfo tasks = {tasks}/> } />
-//         </Routes>
-//       </div>
-//     </BrowserRouter>
-//   );
-// }
-
-// return (
-//   <BrowserRouter>
-//     <div className="container">
-//       <h1>Task List</h1>
-//       <div className="task-list-container">
-//         <TaskList
-//           tasks={tasks}
-//           taskTitle={taskTitle}
-//           editTaskId={editTaskId}
-//           editTaskTitle={editTaskTitle}
-//           setTasks={setTasks}
-//           setEditTaskId={setEditTaskId}
-//           setEditTaskTitle={setEditTaskTitle}
-//         />
-//         <form onSubmit={handleTaskSubmit}>
-//           <input
-//             type="text"
-//             value={taskTitle}
-//             onChange={(event) => setTaskTitle(event.target.value)}
-//             placeholder="Enter task title"
-//           />
-//           <button type="submit">Add Task</button>
-//         </form>
-//       </div>
-//     </div>
-//     <Routes>
-//       <Route path ="/" element={<Tasks />} />
-//       <Route path={ `/tasks/${task.id}` } element={<MoreInfo tasks={tasks} />} />
-//     </Routes>
-//   </BrowserRouter>
-// );
-// }
